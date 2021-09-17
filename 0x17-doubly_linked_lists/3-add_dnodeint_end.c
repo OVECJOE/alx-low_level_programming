@@ -2,7 +2,7 @@
 #include "lists.h"
 
 /**
- * add_nodeint_end - add a node to the end of a dlistint_t list
+ * add_dnodeint_end - add a node to the end of a dlistint_t list
  * @head: a pointer to the starting node of a list
  * n: the data for that new node
  * Return: the address of the new address, else NULL
