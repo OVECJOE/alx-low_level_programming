@@ -1,44 +1,78 @@
 #include "hash_tables.h"
 
 /**
- * hash_table_set - add an element to the hash table
- * @ht: the hash table you want to add or update the key/value to
- * @key: the key, which cannot be empty
- * @value: the value associated with the key.
- * Return: 1 if successful, 0 otherwise
+ * node_handler - If item at index is a linked list, tranverse it to ensure
+ * that there is not already an item with the key passed. If there is,
+ * reassign the value of the preexisting node to the current instead of adding
+ * the new node.
+ *
+ * @ht: the hash table of linked lists
+ * @node: The linked list to add a node to or update
+ *
+ * Return: void
+ */
+void node_handler(hash_table_t *ht, hash_node_t *node)
+{
+	unsigned long int i = key_index((const unsigned char *)node->key, ht->size);
+	hash_node_t *tmp = ht->array[i];
+
+	if (ht->array[i])
+	{
+		tmp = ht->array[i];
+		while (!tmp)
+		{
+			if (!strcmp(tmp->key, node->key))
+				break;
+			tmp = tmp->next;
+		}
+
+		if (!tmp)
+		{
+			node->next = ht->array[i];
+			ht->array[i] = node;
+		}
+		else
+		{
+			free(tmp->value);
+			tmp->value = strdup(node->value);
+			free(node->value);
+			free(node->key);
+			free(node);
+		}
+	}
+	else
+	{
+		node->next = NULL;
+		ht->array[i] = node;
+	}
+}
+
+/**
+ * hash_table_set - Allocates memory for a new node and calls the node_handler
+ * function to either insert the node if the key does not exist, or update
+ * a pre-existing node in the case that it has the same key as that passed
+ * to this function.
+ * @key: the key to add to the hash table
+ * @value: the corresponding value to add to the node
+ *
+ * Return: 1 if memory allocation fails, and 0 if the function returns
+ * successfully.
  */
 int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 {
-	unsigned long int index, i;
-	hash_node_t *new = NULL;
-	char *valcpy = NULL;
+	hash_node_t *node;
 
-	if (!ht || !key || *key == '\0' || value == NULL)
-		return (0);
+	if (!ht)
+		return (1);
 
-	valcpy = strdup(value);
-	if (!valcpy)
-		return (0);
+	node = malloc(sizeof(hash_node_t));
+	if (!node)
+		return (1);
 
-	index = key_index((const unsigned char *)key, ht->size);
-	for (i = index; ht->array[i]; i++)
-		if (!strcmp(ht->array[i]->key, key))
-		{
-			free(ht->array[i]->value);
-			ht->array[i]->value = valcpy;
-			return (1);
-		}
+	node->key = strdup(key);
+	node->value = strdup(value);
 
-	new = malloc(sizeof(hash_node_t));
-	if (!new)
-	{
-		free(valcpy);
-		return (0);
-	}
-	new->value = valcpy;
-	new->next = ht->array[index];
-	ht->array[index] = new;
+	node_handler(ht, node);
 
-	return (1);
+	return (0);
 }
-
