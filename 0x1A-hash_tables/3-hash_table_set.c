@@ -1,78 +1,68 @@
 #include "hash_tables.h"
 
 /**
- * node_handler - If item at index is a linked list, tranverse it to ensure
- * that there is not already an item with the key passed. If there is,
- * reassign the value of the preexisting node to the current instead of adding
- * the new node.
+ * str_copy - Creates a copy of a given string.
+ * @s: The string to copy.
  *
- * @ht: the hash table of linked lists
- * @node: The linked list to add a node to or update
- *
- * Return: void
+ * Return: A pointer to the created string, otherwise NULL.
  */
-void node_handler(hash_table_t *ht, hash_node_t *node)
+char *str_copy(const char *s)
 {
-	unsigned long int i = key_index((const unsigned char *)node->key, ht->size);
-	hash_node_t *tmp = ht->array[i];
+	int i, len;
+	char *s_c = NULL;
 
-	if (ht->array[i])
+	if (s != NULL)
 	{
-		tmp = ht->array[i];
-		while (!tmp)
+		len = strlen(s);
+		s_c = malloc(sizeof(char) * (len + 1));
+		if (s_c != NULL)
 		{
-			if (!strcmp(tmp->key, node->key))
-				break;
-			tmp = tmp->next;
-		}
-
-		if (!tmp)
-		{
-			node->next = ht->array[i];
-			ht->array[i] = node;
-		}
-		else
-		{
-			free(tmp->value);
-			tmp->value = strdup(node->value);
-			free(node->value);
-			free(node->key);
-			free(node);
+			for (i = 0; i < len; i++)
+				s_c[i] = s[i];
+			s_c[i] = '\0';
 		}
 	}
-	else
-	{
-		node->next = NULL;
-		ht->array[i] = node;
-	}
+	return (s_c);
 }
 
 /**
- * hash_table_set - Allocates memory for a new node and calls the node_handler
- * function to either insert the node if the key does not exist, or update
- * a pre-existing node in the case that it has the same key as that passed
- * to this function.
- * @key: the key to add to the hash table
- * @value: the corresponding value to add to the node
+ * hash_table_set - Adds an element to a given hash table.
+ * @ht: The hash table that will contain the element.
+ * @key: The key of the element to add.
+ * @value: The value of the element to add.
  *
- * Return: 1 if memory allocation fails, and 0 if the function returns
- * successfully.
+ * Return: 1 if the addition was successful, otherwise 0.
  */
 int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 {
-	hash_node_t *node;
+	unsigned long idx;
+	hash_node_t *tmp = NULL, *new_node = NULL;
 
-	if (!ht)
-		return (1);
-
-	node = malloc(sizeof(hash_node_t));
-	if (!node)
-		return (1);
-
-	node->key = strdup(key);
-	node->value = strdup(value);
-
-	node_handler(ht, node);
-
+	if ((ht != NULL) && (ht->array != NULL)
+		&& (key != NULL) && (strlen(key) > 0))
+	{
+		idx = key_index((unsigned char *)key, ht->size);
+		tmp = ht->array[idx];
+		while (tmp != NULL)
+		{
+			if (strcmp(tmp->key, key) == 0)
+			{
+				free(tmp->value);
+				tmp->value = str_copy(value);
+				return (1);
+			}
+			tmp = tmp->next;
+		}
+		tmp = ht->array[idx];
+		new_node = malloc(sizeof(hash_node_t));
+		if (new_node != NULL)
+		{
+			new_node->key = str_copy(key);
+			new_node->value = str_copy(value);
+			new_node->next = tmp;
+			ht->array[idx] = new_node;
+			return (1);
+		}
+	}
 	return (0);
 }
