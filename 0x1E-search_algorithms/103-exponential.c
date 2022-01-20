@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include "search_algos.h"
 
+/**
+ * custom_bsearch - find the index of the value using binary search
+ * @array: a pointer to the array to be searched
+ * @l: the starting index
+ * @h: the end index
+ * @value: value that is searched for
+ *
+ * Return: int
+ */
 int custom_bsearch(int *array, size_t l, size_t h, int value)
 {
 	size_t i, m;
@@ -24,7 +33,8 @@ int custom_bsearch(int *array, size_t l, size_t h, int value)
 }
 
 /**
- * exponential_search - searches value in a sorted array of ints using the exponential search algo
+ * exponential_search - searches value in a sorted array of ints using the
+ * exponential search algo
  * @array: a pointer to the first element of the array to be searched
  * @size: the number of elements in array
  * @value: the value to search for
