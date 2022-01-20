@@ -9,8 +9,8 @@ int custom_bsearch(int *array, size_t l, size_t h, int value)
 		return (-1);
 
 	printf("Searching in array: ");
-	for (i = l; i < l + (h - l + 1); i++)
-		printf("%d%s", array[i], i < l + (h - l) ? ", " : "\n");
+	for (i = l; i < (h + 1); i++)
+		printf("%d%s", array[i], i < h ? ", " : "\n");
 
 	m = l + ((h - l) / 2);
 	if (l == h)
